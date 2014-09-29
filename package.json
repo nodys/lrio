@@ -1,0 +1,16 @@
+{
+  "name": "lrio",
+  "version": "1.0.0",
+  "description": "Ultra-light livereload server and client",
+  "main": "./src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "browser": "./src/browser.js",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^2.0.0",
+    "websocket": "^1.0.8"
+  }
+}
