@@ -45,6 +45,10 @@ module.exports = function(server, channel) {
   })
 
   return {
-    broadcast: broadcast
+    broadcast: broadcast,
+    wsServer:  wsServer,
+    getClients: function() {
+      return clients;
+    }
   }
 }

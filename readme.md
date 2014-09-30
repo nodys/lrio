@@ -1,3 +1,3 @@
 # lrio
 
-> Minimalist live-reload client server
+> Simple livereload-like client/server based only on native websocket
