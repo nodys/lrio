@@ -1,11 +1,11 @@
 {
   "name": "lrio",
-  "description": "Simple livereload-like client/server based only on native websocket",
+  "description": "Minimalist websocket broadcast server and client",
   "version": "0.0.0",
   "author": "Jean Ponchon <jean.ponchon@novadiscovery.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nopnop/cssy.git"
+    "url": "https://github.com/nopnop/lrio.git"
   },
   "licenses": "MIT",
   "main": "./src/server.js",
@@ -37,6 +37,7 @@
     "browser",
     "server",
     "websocket",
+    "browserify",
     "webcomponent"
   ],
   "publishConfig": {
