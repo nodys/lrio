@@ -1,54 +1,98 @@
-var debug            = require('debug')('lrio')
-var WebSocketServer  = require('websocket').server;
+var debug           = require('debug')('lrio')
+var WebSocketServer = require('websocket').server
+var EventEmitter    = require('events').EventEmitter
 
-module.exports = function(server, channel) {
+/**
+ * Attach a lrio server to a http(s) server
+ *
+ * Exemple:
+ *
+ *    var lrio       = require('lrio');
+ *    var http       = require('http')
+ *    var server     = http.createServer(myServerApplication)
+ *    var myChannel  = lrio(server,'myChannel')
+ *    server.listen(8080)
+ *
+ *    myChannel.broadcast({data:42})
+ *
+ *    myChannel.getClients().forEach(function(client) { ... })
+ *
+ * @param  {http.Server|https.Server} server
+ *         A node http(s) server instance
+ *
+ * @param  {String} [channel]
+ *         Optional channel name (used as websocket protocol
+ *         and server validation)
+ *
+ * @param  {Function} [validateClient]
+ *         Optional websocket request validator, request is rejected
+ *         if the returned value is false
+ *
+ * @return {Object}
+ *         An EventEmitter object with:
+ *
+ *         - `broadcast` {Function}: Broadcast something to all active clients
+ *         - `getClients` {Function}: Get all active clients
+ *         - `wsServer` {WebSocketServer}: The WebSocketServer instance
+ *
+ *         Events:
+ *
+ *         - `join` : When a client is accepted (argument: client's  WebSocketConnection instance)
+ *         - `leave` : When a client is closed (argument: client's WebSocketConnection instance)
+ *
+ *         Other event may be attached to the WebSocketServer instance or the
+ *         WebSocketConnection instances (see https://github.com/Worlize/WebSocket-Node)
+ */
+module.exports = function(server, channel, validateClient) {
 
-  channel      = channel || 'default';
-  var protocol = 'lrio-protocol-' + channel;
-  var header   = 'X-Lrio-' + channel;
+  var ctrl      = new EventEmitter();
+  ctrl.channel  = channel || 'default';
+  ctrl.protocol = 'lrio-protocol-' + ctrl.channel;
+  ctrl.header   = 'X-Lrio-' + ctrl.channel;
+  ctrl.wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false })
+  ctrl.clients  = [];
 
-  var wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false })
-  var clients  = [];
+  validateClient = validateClient || function() { return true }
 
-  function checkRequest(request) {
-    if(request.requestedProtocols[0] != protocol) return false;
-    return true;
-  }
+  ctrl.wsServer.on('request', function(request) {
 
-  wsServer.on('request', function(request) {
-    if (!checkRequest(request)) {
-      debug('ws: reject request %s', request.origin)
+    if(!~request.requestedProtocols.indexOf(ctrl.protocol)) {
+      return;
+    }
+
+    if (!validateClient(request)) {
       return request.reject();
     }
-    var connection = request.accept(protocol, request.origin);
+
+    var connection = request.accept(ctrl.protocol, request.origin);
+    ctrl.clients.push(connection);
     debug('ws: Peer connected %s', connection.remoteAddress)
-    clients.push(connection);
+    ctrl.emit('join', connection);
 
     connection.on('close', function(reasonCode, description) {
-      clients = clients.filter(function(client) {
+      ctrl.clients = ctrl.clients.filter(function(client) {
         return client !== connection;
       })
       debug('ws: Peer disconnected %s', connection.remoteAddress)
+      ctrl.emit('leave', connection);
     })
   })
 
-  function broadcast(type, uid, src) {
-    var message = JSON.stringify({type: type, uid: uid, src: src})
-    clients.forEach(function(client) {
+  ctrl.broadcast = function (data) {
+    var message = JSON.stringify(data)
+    ctrl.clients.forEach(function(client) {
       client.sendUTF(message);
     })
   }
 
+  ctrl.getClients = function () {
+    return ctrl.clients
+  }
+
   server.on('request', function(req, res) {
     if(req.method != 'HEAD' || res.headersSent) return;
-    res.setHeader(header, 'enabled')
+    res.setHeader(ctrl.header, 'enabled')
   })
 
-  return {
-    broadcast: broadcast,
-    wsServer:  wsServer,
-    getClients: function() {
-      return clients;
-    }
-  }
+  return ctrl
 }

@@ -132,7 +132,7 @@ describe('lrio', function() {
       expect(lrServer.getClients()).to.contain(mockConnection)
 
       // Broadcast a change:
-      lrServer.broadcast('change', 'myUid', 'mySrc');
+      lrServer.broadcast({type:'change', uid: 'myUid', src: 'mySrc'});
       expect(message).to.be.eql(JSON.stringify({type:'change', uid: 'myUid', src: 'mySrc'}))
 
       // Client close connection:
@@ -142,22 +142,58 @@ describe('lrio', function() {
     })
 
 
-    it('should not connection accept from other protocols', function() {
+    it('should ignore from other protocols', function() {
       var mockServer = new EventEmitter();
       var lrServer   = lrio(mockServer);
-      var rejected   = false;;
+      var rejected   = false;
+      var accepted   = false;
       var protocol, origin, closeListener, message;
 
       var mockRequest = {
         requestedProtocols: ['other-protocol'],
         reject: function() {
           rejected = true;
+        },
+        accept: function(_protocol, _origin) {
+          console.log('Accepted')
+          accepted = true;
         }
       }
 
       lrServer.wsServer.emit('request', mockRequest);
 
+      expect(rejected).to.be(false)
+      expect(accepted).to.be(false)
+
+    })
+
+    it('should reject invalid client', function() {
+      var mockServer = new EventEmitter();
+
+      function validateClient(client) {
+        return false;
+      }
+
+      var lrServer   = lrio(mockServer, null, validateClient);
+      var rejected   = false;
+      var accepted   = false;
+      var protocol, origin, closeListener, message;
+
+      var mockRequest = {
+        requestedProtocols: ['lrio-protocol-default'],
+        reject: function() {
+          rejected = true;
+        },
+        accept: function(_protocol, _origin) {
+          accepted = true;
+        }
+      }
+
+
+      lrServer.wsServer.emit('request', mockRequest);
+
       expect(rejected).to.be(true)
+      expect(accepted).to.be(false)
 
     })
 

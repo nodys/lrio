@@ -1,5 +1,4 @@
 
-
 module.exports = function(channel) {
 
   channel      = channel || 'default';
@@ -33,10 +32,12 @@ module.exports = function(channel) {
     var remote  = (loc.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + loc.host + '/';
     var socket  = new WebSocket(remote, protocol)
     socket.onmessage = function(event) {
-      var m = JSON.parse(event.data);
-      client.trigger(m.type, m)
-      client.trigger(m.type + ':' + m.uid, m.src)
+      var message = JSON.parse(event.data);
+      client.trigger('message', message)
     }
+    socket.onerror  = function(error) { client.trigger('error', error) }
+    socket.onopen   = function(event) { client.trigger('open', event) }
+    socket.onclose  = function(event) { client.trigger('close', event) }
   }
 
   function ifServerExists(callback) {
