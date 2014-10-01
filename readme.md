@@ -1,4 +1,4 @@
-# lrio [![Build Status](https://secure.travis-ci.org/nopnop/lrio.png?branch=master)](http://travis-ci.org/nopnop/docflux) [![NPM version](https://badge-me.herokuapp.com/api/npm/lrio.png)](http://badges.enytc.com/for/npm/lrio)
+# lrio [![Build Status](https://secure.travis-ci.org/nopnop/lrio.png?branch=master)](http://travis-ci.org/nopnop/lrio) [![NPM version](https://badge-me.herokuapp.com/api/npm/lrio.png)](http://badges.enytc.com/for/npm/lrio)
 
 
 > Minimalist websocket broadcast server and browser client
