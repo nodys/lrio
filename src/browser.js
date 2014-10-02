@@ -8,7 +8,7 @@ module.exports = function(channel) {
   var client    = {};
   var listeners = {};
 
-  client.trigger = function (type, data) {
+  client.emit = client.trigger = function (type, data) {
     listeners[type] = listeners[type] || [];
     listeners[type].forEach(function(listener) {
       listener.call(null, data)
@@ -20,7 +20,7 @@ module.exports = function(channel) {
     listeners[type].push(listener);
   }
 
-  client.off = function (type, listener) {
+  client.off = client.removeListener = function (type, listener) {
     if(!listeners[type]) return;
     listeners[type] = listeners[type].filter(function(_listener) {
       return listener !== _listener
