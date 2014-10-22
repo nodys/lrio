@@ -1,5 +1,4 @@
-# lrio [![Build Status](https://secure.travis-ci.org/nopnop/lrio.png?branch=master)](http://travis-ci.org/nopnop/lrio) [![NPM version](https://badge-me.herokuapp.com/api/npm/lrio.png)](http://badges.enytc.com/for/npm/lrio)
-
+# lrio [![Build Status](https://secure.travis-ci.org/nodys/lrio.png?branch=master)](http://travis-ci.org/nodys/lrio) [![NPM version](https://badge-me.herokuapp.com/api/npm/lrio.png)](http://badges.enytc.com/for/npm/lrio)
 
 > Minimalist websocket broadcast server and browser client
 
@@ -62,4 +61,4 @@ A.on('error', function() {})
 ```
 
 ## License
-The MIT license
+[The MIT license](./LICENSE) • Novadiscovery

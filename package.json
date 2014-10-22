@@ -5,7 +5,7 @@
   "author": "Jean Ponchon <jean.ponchon@novadiscovery.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nopnop/lrio.git"
+    "url": "https://github.com/nodys/lrio.git"
   },
   "licenses": "MIT",
   "main": "./src/server.js",
