@@ -58,6 +58,9 @@ A.on('open', function() {})
 A.on('close', function() {})
 A.on('error', function() {})
 
+A.close(); // Close websocket
+A.connect(); // Re-connect  (only if closed)
+
 ```
 
 ## License

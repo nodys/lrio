@@ -1,13 +1,24 @@
 
-module.exports = function(channel) {
+module.exports = function(channel, options) {
 
-  channel      = channel || 'default';
-  var protocol = 'lrio-protocol-' + channel;
-  var header   = 'X-Lrio-' + channel;
+  channel         = channel || 'default';
+  var protocol    = 'lrio-protocol-' + channel;
 
-  var client    = {};
-  var listeners = {};
+  var client      = {};
+  var listeners   = {};
 
+  // States
+  var OFF         = 0;
+  var WAITING     = 1;
+  var ESTABLISHED = 2;
+  var state       = OFF;
+
+  // Options:
+  options         = options || {};
+  options.auto    = options.auto === false ? false : true; // Auto connect
+  options.timeout = typeof(options.timeout) == 'undefined' ? 3000 : options.timeout;
+
+  // Event emitter
   client.emit = client.trigger = function (type, data) {
     listeners[type] = listeners[type] || [];
     listeners[type].forEach(function(listener) {
@@ -27,34 +38,63 @@ module.exports = function(channel) {
     })
   }
 
-  function connectSocket() {
-    var loc     = document.location;
-    var remote  = (loc.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + loc.host + '/';
-    var socket  = new WebSocket(remote, protocol)
-    socket.onmessage = function(event) {
+  client.socket      = null;
+
+  client.close       = function() {
+    client.socket.close();
+  }
+
+  client.connect     = function (callback) {
+
+    if(state !== OFF)  return;
+    state = WAITING;
+
+    // if(!window.WebSocket) {
+    //   return client.trigger('error', new Error('WebSocket not supported'))
+    // }
+
+    callback      = callback || function() {};
+    var loc       = document.location;
+    var remote    = (loc.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + loc.host + '/';
+
+    try {
+      client.socket = new WebSocket(remote, protocol)
+    } catch(e) {
+      return;
+    }
+
+    if(options.timeout) {
+      setTimeout(function() {
+        if(state === WAITING) {
+          try {
+            client.close();
+            client.emit('timeout')
+          } catch(e) {}
+        }
+      }, options.timeout);
+    }
+
+    client.socket.onmessage = function(event) {
       var message = JSON.parse(event.data);
       client.trigger('message', message)
     }
-    socket.onerror  = function(error) { client.trigger('error', error) }
-    socket.onopen   = function(event) { client.trigger('open', event) }
-    socket.onclose  = function(event) { client.trigger('close', event) }
-  }
-
-  function ifServerExists(callback) {
-    var req = new XMLHttpRequest()
-    req.onreadystatechange = function () {
-      if (req.readyState === 2
-        && (req.getResponseHeader(header) == 'enabled')) {
-        callback()
-      }
+    client.socket.onerror  = function(error) {
+      client.trigger('error', error)
+      client.close();
     }
-    req.open('HEAD', document.location, true)
-    req.send(null)
+    client.socket.onopen   = function(event) {
+      state = ESTABLISHED;
+      client.trigger('open', event)
+      callback()
+    }
+    client.socket.onclose  = function(event) {
+      client.trigger('close', event)
+      state = OFF;
+      client.socket = null;
+    }
   }
 
-  try {
-    ifServerExists(connectSocket)
-  } catch(e) {}
+  if(options.auto) client.connect();
 
   return client;
 

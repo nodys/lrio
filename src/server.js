@@ -1,4 +1,4 @@
-var debug           = require('debug')('lrio')
+var Debug           = require('debug')
 var WebSocketServer = require('websocket').server
 var EventEmitter    = require('events').EventEmitter
 
@@ -44,11 +44,10 @@ var EventEmitter    = require('events').EventEmitter
  *         WebSocketConnection instances (see https://github.com/Worlize/WebSocket-Node)
  */
 module.exports = function(server, channel, validateClient) {
-
+  var debug     = Debug('lrio:'+channel)
   var ctrl      = new EventEmitter();
   ctrl.channel  = channel || 'default';
   ctrl.protocol = 'lrio-protocol-' + ctrl.channel;
-  ctrl.header   = 'X-Lrio-' + ctrl.channel;
   ctrl.wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false })
   ctrl.clients  = [];
 
@@ -89,10 +88,6 @@ module.exports = function(server, channel, validateClient) {
     return ctrl.clients
   }
 
-  server.on('request', function(req, res) {
-    if(req.method != 'HEAD' || res.headersSent) return;
-    res.setHeader(ctrl.header, 'enabled')
-  })
 
   return ctrl
 }
