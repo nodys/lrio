@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v1.2.0 - Generous Snake (2015-05-29) 
+----------------------------------------------------------------------
+
+  - doc: Update badges
+  - test: Upgrade test according to dependency api changes
+
+
 v1.1.0 - Fluffy Owl (2015-01-22) 
 ----------------------------------------------------------------------
 
