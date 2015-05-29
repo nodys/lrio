@@ -1,13 +1,13 @@
-var Debug           = require('debug')
+var Debug = require('debug')
 var WebSocketServer = require('websocket').server
-var EventEmitter    = require('events').EventEmitter
+var EventEmitter = require('events').EventEmitter
 
 /**
  * Attach a lrio server to a http(s) server
  *
  * Exemple:
  *
- *    var lrio       = require('lrio');
+ *    var lrio       = require('lrio')
  *    var http       = require('http')
  *    var server     = http.createServer(myServerApplication)
  *    var myChannel  = lrio(server,'myChannel')
@@ -43,51 +43,51 @@ var EventEmitter    = require('events').EventEmitter
  *         Other event may be attached to the WebSocketServer instance or the
  *         WebSocketConnection instances (see https://github.com/Worlize/WebSocket-Node)
  */
-module.exports = function(server, channel, validateClient) {
-  var debug     = Debug('lrio:'+channel)
-  var ctrl      = new EventEmitter();
-  ctrl.channel  = channel || 'default';
-  ctrl.protocol = 'lrio-protocol-' + ctrl.channel;
-  ctrl.wsServer = new WebSocketServer({ httpServer: server, autoAcceptConnections: false })
-  ctrl.clients  = [];
+module.exports = function (server, channel, validateClient) {
+  var ctrl = new EventEmitter()
+  ctrl.channel = channel || 'default'
+  ctrl.protocol = 'lrio-protocol-' + ctrl.channel
+  ctrl.wsServer = new WebSocketServer({httpServer: server, autoAcceptConnections: false })
+  ctrl.clients = []
+  var debug = Debug('lrio:' + ctrl.channel)
 
-  validateClient = validateClient || function() { return true }
+  validateClient = validateClient || function () { return true }
 
-  ctrl.wsServer.on('request', function(request) {
+  debug('connect to server on channel %s', channel)
 
-    if(!~request.requestedProtocols.indexOf(ctrl.protocol)) {
-      return;
+  ctrl.wsServer.on('request', function (request) {
+    if (!~request.requestedProtocols.indexOf(ctrl.protocol)) {
+      return
     }
 
     if (!validateClient(request)) {
-      return request.reject();
+      return request.reject()
     }
 
-    var connection = request.accept(ctrl.protocol, request.origin);
-    ctrl.clients.push(connection);
+    var connection = request.accept(ctrl.protocol, request.origin)
+    ctrl.clients.push(connection)
     debug('ws: Peer connected %s', connection.remoteAddress)
-    ctrl.emit('join', connection);
+    ctrl.emit('join', connection)
 
-    connection.on('close', function(reasonCode, description) {
-      ctrl.clients = ctrl.clients.filter(function(client) {
-        return client !== connection;
+    connection.on('close', function (reasonCode, description) {
+      ctrl.clients = ctrl.clients.filter(function (client) {
+        return client !== connection
       })
       debug('ws: Peer disconnected %s', connection.remoteAddress)
-      ctrl.emit('leave', connection);
+      ctrl.emit('leave', connection)
     })
   })
 
   ctrl.broadcast = function (data) {
     var message = JSON.stringify(data)
-    ctrl.clients.forEach(function(client) {
-      client.sendUTF(message);
+    ctrl.clients.forEach(function (client) {
+      client.sendUTF(message)
     })
   }
 
   ctrl.getClients = function () {
     return ctrl.clients
   }
-
 
   return ctrl
 }
