@@ -1,4 +1,15 @@
-# lrio [![Build Status](https://secure.travis-ci.org/nodys/lrio.png?branch=master)](http://travis-ci.org/nodys/lrio) [![NPM version](https://badge-me.herokuapp.com/api/npm/lrio.png)](http://badges.enytc.com/for/npm/lrio)
+# lrio
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
+[![travis][travis-image]][travis-url]
+[![npm][npm-image]][npm-url]
+[![downloads][downloads-image]][downloads-url]
+
+[travis-image]: https://img.shields.io/travis/nodys/lrio.svg?style=flat&branch=master
+[travis-url]: https://travis-ci.org/nodys/lrio
+[npm-image]: https://img.shields.io/npm/v/lrio.svg?style=flat
+[npm-url]: https://npmjs.org/package/lrio
+[downloads-image]: https://img.shields.io/npm/dm/lrio.svg?style=flat
+[downloads-url]: https://npmjs.org/package/lrio
 
 > Minimalist websocket broadcast server and browser client
 
@@ -64,4 +75,8 @@ A.connect(); // Re-connect  (only if closed)
 ```
 
 ## License
+
 [The MIT license](./LICENSE) • Novadiscovery
+
+
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
