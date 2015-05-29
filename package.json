@@ -18,18 +18,19 @@
     "monitor": "mocha --reporter spec --watch",
     "debugtest": "mocha --debug-brk --reporter spec",
     "coverage": "rm -rf ./src-cov && jscoverage ./src ./src-cov && COVERAGE=true mocha --reporter html-cov > ./coverage.html || true && rm -rf ./src-cov",
-    "jshint": "./node_modules/.bin/jshint --exclude node_modules"
+    "standard": "./node_modules/.bin/standard"
   },
   "dependencies": {
     "debug": "^2.0.0",
-    "websocket": "^1.0.8"
+    "websocket": "^1.0.19"
   },
   "devDependencies": {
-    "browserify": "^5.12.1",
+    "browserify": "^10.2.3",
     "concat-stream": "^1.4.6",
     "expect.js": "^0.3.1",
-    "jsdom": "^1.0.0",
-    "mocha": "^1.21.4"
+    "jsdom": "^5.4.3",
+    "mocha": "^2.2.5",
+    "standard": "^3.11.1"
   },
   "browser": "./src/browser.js",
   "keywords": [
